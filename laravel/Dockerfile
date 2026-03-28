@@ -42,3 +42,12 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 
 # Port 80 cho Render
 EXPOSE 80
+
+# Copy file script khởi động vào container
+COPY docker-entrypoint.sh /usr/local/bin/
+
+# Cấp quyền thực thi cho script
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# Chỉ định file này làm lệnh chạy chính
+ENTRYPOINT ["docker-entrypoint.sh"]

@@ -11,6 +11,8 @@ use App\Filament\Resources\Posts\Schemas\PostInfolist;
 use App\Filament\Resources\Posts\Tables\PostsTable;
 use App\Models\Post;
 use BackedEnum;
+use Filament\Forms\Components\MarkdownEditor;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -26,7 +28,15 @@ class PostResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return PostForm::configure($schema);
+        return $schema
+            ->schema([
+                MarkdownEditor::make('content')
+                    ->columnSpanFull()
+                    ->required(),
+                TextInput::make('summary')
+                    ->helperText('Tóm tắt ngắn hiện ở trang danh sách bài viết')
+                    ->maxLength(255),
+            ]);
     }
 
     public static function infolist(Schema $schema): Schema

@@ -9,6 +9,7 @@ use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\MarkdownEditor;
 // Tables
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ImageColumn;
@@ -61,11 +62,21 @@ class ProjectResource extends Resource
 
                 FileUpload::make('thumbnail')
                     ->image()
-                    ->directory('projects')
-                    ->optimize('webp'), // Tự động tối ưu ảnh
+                    ->maxSize(4096) // Giới hạn 1MB
+                    ->imageResizeTargetWidth('1200') // Tự động resize chiều rộng về 1200px
+                    ->imageResizeTargetHeight('675')
+                    ->imageEditor() // Hiện nút chỉnh sửa ảnh
+                    ->imageEditorAspectRatios([
+                        '16:9',
+                        '4:3',
+                        '1:1',
+                    ])
+                    ->disk('public') 
+                    ->directory('projects'),
 
-                RichEditor::make('content')
+                MarkdownEditor::make('content')
                     ->columnSpanFull(),
+                    
 
                 TextInput::make('demo_url')->url(),
                 TextInput::make('github_url')->url(),

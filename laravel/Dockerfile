@@ -1,7 +1,6 @@
-# Nâng cấp lên PHP 8.3 kèm Apache
 FROM php:8.3-apache
 
-# Cài đặt các thư viện hệ thống cần thiết
+# 1. Cài đặt các thư viện hệ thống (Thêm libpq-dev cho PostgreSQL)
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg-dev \
@@ -13,41 +12,33 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     libicu-dev \
     libzip-dev \
+    libpq-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd intl zip
+    && docker-php-ext-install pdo_mysql pdo_pgsql mbstring exif pcntl bcmath gd intl zip
 
-# Kích hoạt Apache Mod Rewrite
+# 2. Cấu hình Apache
 RUN a2enmod rewrite
-
-# Cấu hình Document Root cho Laravel
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
-# Thiết lập thư mục làm việc
 WORKDIR /var/www/html
-
-# Copy toàn bộ mã nguồn
 COPY . .
 
-# Cài đặt Composer từ image chính thức
+# 3. Cài đặt Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Chạy lệnh cài đặt với quyền bỏ qua kiểm tra môi trường nếu cần, 
-# nhưng ở đây 8.3 đã khớp nên sẽ chạy mượt.
 RUN composer install --no-dev --optimize-autoloader
 
-# Cấp quyền cho các thư mục quan trọng
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+# 4. CẤP QUYỀN (Sửa lỗi Permission Denied)
+# Tạo thư mục logs nếu chưa có và cấp quyền cho user www-data
+RUN mkdir -p /var/www/html/storage/logs && \
+    chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache && \
+    chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Port 80 cho Render
-EXPOSE 80
-
-# Copy file script khởi động vào container
+# 5. Khởi động bằng script
 COPY docker-entrypoint.sh /usr/local/bin/
-
-# Cấp quyền thực thi cho script
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-# Chỉ định file này làm lệnh chạy chính
+EXPOSE 80
+
 ENTRYPOINT ["docker-entrypoint.sh"]

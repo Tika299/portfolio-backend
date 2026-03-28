@@ -5,10 +5,12 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
@@ -45,5 +47,16 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        // Cách 1: Cho phép tất cả user (Dành cho portfolio cá nhân)
+        return true;
+
+        // Cách 2: Chỉ cho phép email của bạn (Bảo mật hơn)
+        // return str_ends_with($this->email, '@gmail.com') && $this->hasVerifiedEmail();
+        // hoặc đơn giản hơn:
+        // return $this->email === 'admin@example.com';
     }
 }

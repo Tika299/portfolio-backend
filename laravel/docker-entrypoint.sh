@@ -14,6 +14,12 @@ sleep 5
 echo "Running migrations..."
 php artisan migrate --force
 
+php artisan filament:assets
+php artisan view:cache
+
+echo "Seeding database..."
+php artisan db:seed --force
+
 echo "Starting Apache..."
 exec apache2-foreground
 

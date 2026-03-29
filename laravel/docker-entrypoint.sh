@@ -27,6 +27,8 @@ exec apache2-foreground
 echo "Linking storage..."
 php artisan storage:link
 
+chmod -R 775 storage bootstrap/cache
+
 # 4. Tối ưu hóa hệ thống
 echo "Caching config and routes..."
 php artisan config:cache

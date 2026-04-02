@@ -20,3 +20,10 @@ Route::get('/fix-db-postgres', function () {
         return "Lỗi: " . $e->getMessage();
     }
 });
+
+Route::get('/debug-cloudinary', function () {
+    return [
+        'cloudinary_config' => config('cloudinary'),
+        'env_cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
+    ];
+});

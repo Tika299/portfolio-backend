@@ -31,7 +31,10 @@ RUN composer install --no-dev --optimize-autoloader
 
 # 4. CẤP QUYỀN (Sửa lỗi Permission Denied)
 # Tạo thư mục logs nếu chưa có và cấp quyền cho user www-data
-RUN mkdir -p /var/www/html/storage/logs && \
+RUN mkdir -p /var/www/html/storage/logs
+
+RUN mkdir -p /var/www/html/storage/app/public/livewire-tmp && \
+    mkdir -p /var/www/html/storage/framework/views && \
     chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache && \
     chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 

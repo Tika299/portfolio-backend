@@ -71,8 +71,8 @@ class ProjectResource extends Resource
                         '4:3',
                         '1:1',
                     ])
-                    ->disk('cloudinary') 
-                    ->directory('portfolio/projects'),
+                    ->disk('public') 
+                    ->directory('projects'),
 
                 MarkdownEditor::make('content')
                     ->columnSpanFull(),
@@ -97,7 +97,6 @@ class ProjectResource extends Resource
         return $table
             ->columns([
                 ImageColumn::make('thumbnail')
-                    ->disk('cloudinary')
                     ->circular(),
                 TextColumn::make('title')
                     ->searchable()

@@ -4,7 +4,6 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
 
 class ProjectResource extends JsonResource
 {
@@ -19,15 +18,13 @@ class ProjectResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'slug' => $this->slug,
+            'description' => $this->description,
             'content' => $this->content,
-
-            // CÁCH SỬA CHI TIẾT:
-            // Storage::url() sẽ tự động kiểm tra: 
-            // nếu disk là cloudinary, nó trả về link https://res.cloudinary.com/...
-            'thumbnail' => $this->thumbnail ? Storage::url('cloudinary/' . $this->thumbnail) : null,
-
+            // Chuyển URL ảnh thành đường dẫn tuyệt đối
+            'thumbnail' => $this->thumbnail ? asset('storage/' . $this->thumbnail) : null,
             'demo_url' => $this->demo_url,
             'github_url' => $this->github_url,
+            // Load danh sách công nghệ đi kèm
             'technologies' => TechnologyResource::collection($this->whenLoaded('technologies')),
             'created_at' => $this->created_at->format('d/m/Y'),
         ];

@@ -24,7 +24,7 @@ class ProjectResource extends JsonResource
             // CÁCH SỬA CHI TIẾT:
             // Storage::url() sẽ tự động kiểm tra: 
             // nếu disk là cloudinary, nó trả về link https://res.cloudinary.com/...
-            'thumbnail' => $this->thumbnail ? Storage::url('cloudinary/' . $this->thumbnail) : null,
+            'thumbnail' => $this->thumbnail,
 
             'demo_url' => $this->demo_url,
             'github_url' => $this->github_url,

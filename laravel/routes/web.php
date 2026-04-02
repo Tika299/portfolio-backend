@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -8,4 +9,14 @@ Route::get('/', function () {
 // routes/web.php
 Route::get('/health', function () {
     return response()->json(['status' => 'ok', 'time' => now()]);
+});
+
+Route::get('/fix-db-postgres', function () {
+    try {
+        // Lệnh này xóa bỏ ràng buộc kiểm tra status cũ của Postgres
+        DB::statement('ALTER TABLE projects DROP CONSTRAINT IF EXISTS projects_status_check');
+        return "Đã xóa ràng buộc thành công! Hãy thử lưu lại dự án.";
+    } catch (\Exception $e) {
+        return "Lỗi: " . $e->getMessage();
+    }
 });

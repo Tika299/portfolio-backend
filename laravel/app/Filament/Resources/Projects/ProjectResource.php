@@ -25,7 +25,6 @@ use App\Filament\Resources\Projects\Tables\ProjectsTable;
 // Others
 use App\Models\Project;
 use BackedEnum;
-use Cloudinary\Cloudinary;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -72,22 +71,12 @@ class ProjectResource extends Resource
                         '4:3',
                         '1:1',
                     ])
-                    ->directory('portfolio/projects')
-                    ->afterStateHydrated(fn ($state, $set) => $state)
-                    ->afterStateUpdated(function ($state, $set) {
-                        // Tự upload ảnh lên Cloudinary
-                        if ($state) {
-                            $cloudinary = new Cloudinary();
-                            // Upload ảnh lên cloudinary và lấy URL trả về
-                            $result = $cloudinary->uploadApi()->upload($state->getRealPath());
-                            // Lưu thẳng URL vào database
-                            $set('thumbnail', $result['secure_url']);
-                        }
-                    }),
+                    ->disk('cloudinary') 
+                    ->directory('portfolio/projects'),
 
                 MarkdownEditor::make('content')
                     ->columnSpanFull(),
-
+                    
 
                 TextInput::make('demo_url')->url(),
                 TextInput::make('github_url')->url(),

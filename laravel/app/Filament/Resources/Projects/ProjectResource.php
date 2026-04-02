@@ -4,9 +4,6 @@ namespace App\Filament\Resources\Projects;
 
 // Forms
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\RichEditor;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\MarkdownEditor;
@@ -60,23 +57,14 @@ class ProjectResource extends Resource
                     ->relationship('technologies', 'name')
                     ->preload(),
 
-                FileUpload::make('thumbnail')
-                    ->image()
-                    ->maxSize(4096) // Giới hạn 1MB
-                    ->imageResizeTargetWidth('1200') // Tự động resize chiều rộng về 1200px
-                    ->imageResizeTargetHeight('675')
-                    ->imageEditor() // Hiện nút chỉnh sửa ảnh
-                    ->imageEditorAspectRatios([
-                        '16:9',
-                        '4:3',
-                        '1:1',
-                    ])
-                    ->disk('public') 
-                    ->directory('projects'),
+                TextInput::make('thumbnail')
+                    ->label('Link ảnh (GitHub/Imgur)')
+                    ->placeholder('Dán link ảnh vào đây...')
+                    ->required(),
 
                 MarkdownEditor::make('content')
                     ->columnSpanFull(),
-                    
+
 
                 TextInput::make('demo_url')->url(),
                 TextInput::make('github_url')->url(),

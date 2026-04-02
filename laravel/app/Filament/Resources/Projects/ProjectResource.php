@@ -25,7 +25,6 @@ use App\Filament\Resources\Projects\Tables\ProjectsTable;
 // Others
 use App\Models\Project;
 use BackedEnum;
-use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;

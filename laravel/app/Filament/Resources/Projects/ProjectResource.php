@@ -61,39 +61,10 @@ class ProjectResource extends Resource
                     ->relationship('technologies', 'name')
                     ->preload(),
 
-                FileUpload::make('thumbnail')
-                    ->image()
-                    ->maxSize(4096) // Giới hạn 1MB
-                    ->imageResizeTargetWidth('1200') // Tự động resize chiều rộng về 1200px
-                    ->imageResizeTargetHeight('675')
-                    ->imageEditor() // Hiện nút chỉnh sửa ảnh
-                    ->imageEditorAspectRatios([
-                        '16:9',
-                        '4:3',
-                        '1:1',
-                    ])
-                    ->disk('public')
-                    ->directory('portfolio/projects')
-                    ->afterStateHydrated(fn($state, $set) => $state)
-                    ->dehydrateStateUsing(function ($state) {
-                        // Nếu là string (link cũ), giữ nguyên
-                        if (is_string($state)) {
-                            return $state;
-                        }
-
-                        // Nếu là file mới upload
-                        if ($state instanceof \Illuminate\Http\UploadedFile) {
-                            // Sử dụng Facade để upload, giúp VS Code nhận diện được method 'upload'
-                            $result = Cloudinary::upload($state->getRealPath(), [
-                                'folder' => 'portfolio/projects'
-                            ]);
-
-                            return $result->getSecurePath(); // Trả về link https://...
-                        }
-
-                        return $state;
-                    })
-                    ->formatStateUsing(fn($state) => $state),
+                TextInput::make('thumbnail')
+                    ->label('Link ảnh (GitHub/Imgur)')
+                    ->placeholder('Dán link ảnh vào đây...')
+                    ->required(),
 
                 MarkdownEditor::make('content')
                     ->columnSpanFull(),

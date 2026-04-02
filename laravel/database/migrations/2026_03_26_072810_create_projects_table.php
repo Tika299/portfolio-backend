@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('thumbnail')->nullable();
             $table->string('demo_url')->nullable();
             $table->string('github_url')->nullable();
-            $table->enum('status', ['draft', 'published', 'archived'])->default('draft');
+            $table->boolean('status')->default(true); // true: active, false: inactive
             $table->timestamps();
         });
     }

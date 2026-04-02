@@ -22,7 +22,7 @@ class Project extends Model
     ];
 
     protected $casts = [
-        'status' => 'string',   // hoặc bạn có thể dùng Enum nếu muốn
+        'status' => 'boolean',   // hoặc bạn có thể dùng Enum nếu muốn
     ];
 
     /**

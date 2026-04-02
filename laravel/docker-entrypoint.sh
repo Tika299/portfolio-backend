@@ -1,32 +1,45 @@
 #!/bin/bash
 
-# 1. Cấp quyền log
+#!/bin/bash
+
+# Tạo file log nếu chưa có và cấp quyền ngay lập tức
 touch /var/www/html/storage/logs/laravel.log
 chown www-data:www-data /var/www/html/storage/logs/laravel.log
 chmod 664 /var/www/html/storage/logs/laravel.log
 
-# 2. Đợi DB sẵn sàng
+# 1. Chờ một chút để chắc chắn Database đã sẵn sàng (khoảng 5 giây)
 sleep 5
 
-# 3. Dọn dẹp Cache (Cực kỳ quan trọng để xóa dấu vết Cloudinary)
+# 1. Xóa sạch mọi loại cache trước khi khởi động
 php artisan config:clear
 php artisan cache:clear
 php artisan route:clear
 php artisan view:clear
 
-# 4. Chạy Migration & Seed
+# 2. Chạy lệnh Migration (bắt buộc có --force vì đây là môi trường Production)
 echo "Running migrations..."
 php artisan migrate --force
+
+php artisan filament:assets
+php artisan view:cache
+
+echo "Seeding database..."
 php artisan db:seed --force
 
-# 5. Assets & Link Storage
-php artisan filament:assets
-php artisan storage:link --force
+echo "Starting Apache..."
+exec apache2-foreground
 
-# 6. Cấp quyền cuối cùng cho các thư mục ghi file
-chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+# 3. Tạo liên kết Storage (để hiện ảnh)
+echo "Linking storage..."
+php artisan storage:link
 
-# 7. CHỈ DÙNG 1 LỆNH EXEC CUỐI CÙNG Ở ĐÂY
+chmod -R 775 storage bootstrap/cache
+
+# 4. Tối ưu hóa hệ thống
+echo "Caching config and routes..."
+php artisan config:cache
+php artisan route:cache
+
+# 5. Khởi động Apache (Lệnh mặc định của image php-apache)
 echo "Starting Apache..."
 exec apache2-foreground

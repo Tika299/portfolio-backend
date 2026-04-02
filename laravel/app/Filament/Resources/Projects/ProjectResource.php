@@ -25,7 +25,7 @@ use App\Filament\Resources\Projects\Tables\ProjectsTable;
 // Others
 use App\Models\Project;
 use BackedEnum;
-use Cloudinary\Cloudinary;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -72,18 +72,28 @@ class ProjectResource extends Resource
                         '4:3',
                         '1:1',
                     ])
+                    ->disk('public')
                     ->directory('portfolio/projects')
-                    ->afterStateHydrated(fn ($state, $set) => $state)
-                    ->afterStateUpdated(function ($state, $set) {
-                        // Tự upload ảnh lên Cloudinary
-                        if ($state) {
-                            $cloudinary = new Cloudinary();
-                            // Upload ảnh lên cloudinary và lấy URL trả về
-                            $result = $cloudinary->uploadApi()->upload($state->getRealPath());
-                            // Lưu thẳng URL vào database
-                            $set('thumbnail', $result['secure_url']);
+                    ->afterStateHydrated(fn($state, $set) => $state)
+                    ->dehydrateStateUsing(function ($state) {
+                        // Nếu là string (link cũ), giữ nguyên
+                        if (is_string($state)) {
+                            return $state;
                         }
-                    }),
+
+                        // Nếu là file mới upload
+                        if ($state instanceof \Illuminate\Http\UploadedFile) {
+                            // Sử dụng Facade để upload, giúp VS Code nhận diện được method 'upload'
+                            $result = Cloudinary::upload($state->getRealPath(), [
+                                'folder' => 'portfolio/projects'
+                            ]);
+
+                            return $result->getSecurePath(); // Trả về link https://...
+                        }
+
+                        return $state;
+                    })
+                    ->formatStateUsing(fn($state) => $state),
 
                 MarkdownEditor::make('content')
                     ->columnSpanFull(),
@@ -108,7 +118,6 @@ class ProjectResource extends Resource
         return $table
             ->columns([
                 ImageColumn::make('thumbnail')
-                    ->disk('cloudinary')
                     ->circular(),
                 TextColumn::make('title')
                     ->searchable()

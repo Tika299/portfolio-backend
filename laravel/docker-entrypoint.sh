@@ -10,10 +10,6 @@ chmod 664 /var/www/html/storage/logs/laravel.log
 # 1. Chờ một chút để chắc chắn Database đã sẵn sàng (khoảng 5 giây)
 sleep 5
 
-# Xóa toàn bộ cache cấu hình cũ khi khởi động
-php artisan config:clear
-php artisan cache:clear
-
 # 2. Chạy lệnh Migration (bắt buộc có --force vì đây là môi trường Production)
 echo "Running migrations..."
 php artisan migrate --force

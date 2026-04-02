@@ -21,9 +21,7 @@ class ProjectResource extends JsonResource
             'description' => $this->description,
             'content' => $this->content,
             // Chuyển URL ảnh thành đường dẫn tuyệt đối
-            'thumbnail' => str_starts_with($this->thumbnail, 'http')
-                ? $this->thumbnail
-                : asset('storage/' . $this->thumbnail),
+            'thumbnail' => $this->thumbnail,
             'demo_url' => $this->demo_url,
             'github_url' => $this->github_url,
             // Load danh sách công nghệ đi kèm

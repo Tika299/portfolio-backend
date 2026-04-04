@@ -47,7 +47,7 @@ return [
             'report' => false,
         ],
 
-        's3' => [
+        'supabase' => [
             'driver' => 's3',
             'key' => env('SUPABASE_ACCESS_KEY'),
             'secret' => env('SUPABASE_SECRET_KEY'),

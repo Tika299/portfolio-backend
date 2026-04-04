@@ -11,4 +11,6 @@ Route::get('/user', function (Request $request) {
 
 Route::get('/projects', [ProjectController::class, 'index']);
 Route::get('/projects/{slug}', [ProjectController::class, 'show']);
+Route::get('/posts', [\App\Http\Controllers\Api\PostController::class, 'index']);
+Route::get('/posts/{slug}', [\App\Http\Controllers\Api\PostController::class, 'show']);
 Route::post('/contact', [ContactController::class, 'store']);

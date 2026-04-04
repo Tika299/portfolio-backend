@@ -18,11 +18,13 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
@@ -39,11 +41,10 @@ class PostResource extends Resource
     {
         return $schema
             ->schema([
-                Grid::make(3) // Chia layout thành 3 cột
-                    ->schema([
-                        // Cột chính (bên trái - chiếm 2/3)
-                        Section::make('Nội dung bài viết')
-                            ->columnSpan(2)
+                Split::make([
+                    // CỘT TRÁI: CHIẾM PHẦN LỚN (Nội dung chính)
+                    Group::make([
+                        Section::make('Soạn thảo nội dung')
                             ->schema([
                                 TextInput::make('title')
                                     ->label('Tiêu đề bài viết')
@@ -53,46 +54,44 @@ class PostResource extends Resource
                                     $operation === 'create' ? $set('slug', Str::slug($state)) : null),
 
                                 TextInput::make('slug')
-                                    ->label('Đường dẫn (Slug)')
+                                    ->label('URL động (Slug)')
                                     ->disabled()
                                     ->dehydrated()
-                                    ->required()
-                                    ->unique(Post::class, 'slug', ignoreRecord: true),
+                                    ->required(),
 
                                 MarkdownEditor::make('content')
-                                    ->label('Nội dung (Markdown)')
-                                    ->columnSpanFull()
-                                    ->required(),
-                            ]),
+                                    ->label('Nội dung bài viết')
+                                    ->required()
+                                    ->columnSpanFull(),
+                            ])
+                    ])->grow(true), // Cột này sẽ tự giãn rộng ra
 
-                        // Cột phụ (bên phải - chiếm 1/3)
-                        Section::make('Thông tin bổ sung')
-                            ->columnSpan(1)
+                    // CỘT PHẢI: CHIẾM PHẦN NHỎ (Cấu hình & Sidebar)
+                    Group::make([
+                        Section::make('Hình ảnh & Tóm tắt')
                             ->schema([
-                                FileUpload::make('thumbnail')
-                                    ->label('Ảnh đại diện')
-                                    ->image()
-                                    ->disk('supabase') // Ép sử dụng disk supabase chúng ta vừa cấu hình
-                                    ->directory('projects') // Thư mục bên trong bucket
-                                    ->extraAttributes(['loading' => 'lazy'])
+                                TextInput::make('thumbnail')
+                                    ->label('Link ảnh đại diện (GitHub/Imgur)')
                                     ->required(),
 
                                 TextInput::make('summary')
-                                    ->label('Mô tả ngắn')
-                                    ->helperText('Hiện ở trang danh sách bài viết')
-                                    ->required()
-                                    ->maxLength(255),
+                                    ->label('Tóm tắt bài viết')
+                                    ->placeholder('Mô tả ngắn cho trang danh sách...')
+                                    ->required(),
+                            ]),
 
+                        Section::make('Trạng thái xuất bản')
+                            ->schema([
                                 Toggle::make('is_published')
-                                    ->label('Công khai bài viết')
-                                    ->default(true)
-                                    ->inline(false),
+                                    ->label('Công khai')
+                                    ->default(true),
 
                                 DateTimePicker::make('published_at')
-                                    ->label('Ngày đăng')
+                                    ->label('Ngày đăng bài')
                                     ->default(now()),
                             ]),
-                    ]),
+                    ])->grow(false)->extraAttributes(['class' => 'w-full lg:w-[350px]']), // Cố định độ rộng sidebar
+                ])->columnSpanFull(),
             ]);
     }
 

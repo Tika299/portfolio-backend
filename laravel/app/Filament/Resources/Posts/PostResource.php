@@ -12,6 +12,7 @@ use App\Filament\Resources\Posts\Tables\PostsTable;
 use App\Models\Post;
 use BackedEnum;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\MarkdownEditor;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -68,9 +69,12 @@ class PostResource extends Resource
                         Section::make('Thông tin bổ sung')
                             ->columnSpan(1)
                             ->schema([
-                                TextInput::make('thumbnail')
-                                    ->label('Link ảnh bìa')
-                                    ->placeholder('Dán link GitHub/Imgur...')
+                                FileUpload::make('thumbnail')
+                                    ->label('Ảnh đại diện')
+                                    ->image()
+                                    ->disk('supabase') // Ép sử dụng disk supabase chúng ta vừa cấu hình
+                                    ->directory('projects') // Thư mục bên trong bucket
+                                    ->extraAttributes(['loading' => 'lazy'])
                                     ->required(),
 
                                 TextInput::make('summary')

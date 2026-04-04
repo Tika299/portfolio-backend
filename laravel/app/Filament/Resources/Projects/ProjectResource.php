@@ -62,9 +62,6 @@ class ProjectResource extends Resource
                     ->image()
                     ->disk('supabase') // Ép sử dụng disk supabase chúng ta vừa cấu hình
                     ->directory('projects') // Thư mục bên trong bucket
-                    ->visibility('public')
-                    ->afterStateHydrated(fn($state, $set) => $state)
-                    ->dehydrated(fn($state) => filled($state))
                     ->extraAttributes(['loading' => 'lazy'])
                     ->required(),
 

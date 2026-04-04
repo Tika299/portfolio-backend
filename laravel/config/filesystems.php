@@ -55,10 +55,6 @@ return [
             'bucket' => env('SUPABASE_BUCKET'),
             'endpoint' => env('SUPABASE_ENDPOINT'),
             'use_path_style_endpoint' => true,
-            'visibility' => 'public',
-            'url' => env('SUPABASE_PUBLIC_URL'),
-            'throw' => false,
-            'report' => false,
         ],
 
     ],

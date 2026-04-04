@@ -15,12 +15,11 @@ class ProjectResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $imageUrl = $this->thumbnail;
+        $thumbnail = $this->thumbnail;
 
-        // Nếu thumbnail đã là link full (do bạn dán link github vào chẳng hạn)
-        if (!str_starts_with($imageUrl, 'http')) {
-            // Nếu là file upload (chỉ có tên file), lấy link từ Supabase
-            $imageUrl = Storage::disk('supabase')->url($this->thumbnail);
+        // Tự nối link chuẩn của Supabase
+        if ($thumbnail && !str_starts_with($thumbnail, 'http')) {
+            $thumbnail = "https://lpctoylpxvdqwjqcxeoy.storage.supabase.co/storage/v1/object/public/portfolio/" . $thumbnail;
         }
         return [
             'id' => $this->id,
@@ -29,7 +28,7 @@ class ProjectResource extends JsonResource
             'description' => $this->description,
             'content' => $this->content,
             // Chuyển URL ảnh thành đường dẫn tuyệt đối
-            'thumbnail' => $imageUrl,
+            'thumbnail' => $thumbnail,
             'demo_url' => $this->demo_url,
             'github_url' => $this->github_url,
             // Load danh sách công nghệ đi kèm

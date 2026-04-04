@@ -17,17 +17,18 @@ class PostForm
                     ->required(),
                 TextInput::make('slug')
                     ->required(),
-                TextInput::make('summary')
-                    ->required(),
+                Textarea::make('summary')
+                    ->default(null)
+                    ->columnSpanFull(),
                 Textarea::make('content')
-                    ->required()
+                    ->default(null)
                     ->columnSpanFull(),
                 FileUpload::make('cover_image')
-                    ->image()
-                    ->required(),
+                    ->image(),
                 TextInput::make('views')
                     ->required()
-                    ->numeric(),
+                    ->numeric()
+                    ->default(0),
             ]);
     }
 }

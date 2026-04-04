@@ -14,12 +14,22 @@ class PostInfolist
             ->components([
                 TextEntry::make('title'),
                 TextEntry::make('slug'),
-                TextEntry::make('summary'),
-                TextEntry::make('content')
+                TextEntry::make('summary')
+                    ->placeholder('-')
                     ->columnSpanFull(),
-                ImageEntry::make('cover_image'),
+                TextEntry::make('content')
+                    ->placeholder('-')
+                    ->columnSpanFull(),
+                ImageEntry::make('cover_image')
+                    ->placeholder('-'),
                 TextEntry::make('views')
                     ->numeric(),
+                TextEntry::make('created_at')
+                    ->dateTime()
+                    ->placeholder('-'),
+                TextEntry::make('updated_at')
+                    ->dateTime()
+                    ->placeholder('-'),
             ]);
     }
 }

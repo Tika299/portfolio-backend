@@ -15,7 +15,11 @@ return new class extends Migration
             $table->text('summary')->nullable();
             $table->longText('content')->nullable();
             $table->string('cover_image')->nullable();
-            $table->string('status')->default('draft');
+
+            // Sửa/Thêm 2 dòng này để khớp với code Table của Vũ
+            $table->boolean('is_published')->default(false);
+            $table->timestamp('published_at')->nullable();
+
             $table->unsignedInteger('views')->default(0);
             $table->timestamps();
         });

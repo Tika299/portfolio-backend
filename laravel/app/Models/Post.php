@@ -17,12 +17,14 @@ class Post extends Model
         'content',
         'cover_image',
         'views',
+        'is_published', // Thêm
+        'published_at', // Thêm
     ];
 
     protected $casts = [
-        'views' => 'integer',
         'is_published' => 'boolean',
         'published_at' => 'datetime',
+        'views' => 'integer',
     ];
 
     protected static function booted()

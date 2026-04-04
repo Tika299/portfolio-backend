@@ -12,12 +12,11 @@ use App\Filament\Resources\Posts\Tables\PostsTable;
 use App\Models\Post;
 use BackedEnum;
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\MarkdownEditor;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
-use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -42,55 +41,61 @@ class PostResource extends Resource
         return $schema
             ->schema([
                 Split::make([
-                    // CỘT TRÁI: CHIẾM PHẦN LỚN (Nội dung chính)
+                    // CỘT TRÁI: Nội dung chính
                     Group::make([
-                        Section::make('Soạn thảo nội dung')
+                        Section::make('Nội dung bài viết')
                             ->schema([
                                 TextInput::make('title')
-                                    ->label('Tiêu đề bài viết')
+                                    ->label('Tiêu đề')
                                     ->required()
                                     ->live(onBlur: true)
                                     ->afterStateUpdated(fn(string $operation, $state, $set) =>
                                     $operation === 'create' ? $set('slug', Str::slug($state)) : null),
 
                                 TextInput::make('slug')
-                                    ->label('URL động (Slug)')
+                                    ->label('URL động')
                                     ->disabled()
                                     ->dehydrated()
-                                    ->required(),
+                                    ->required()
+                                    ->unique(Post::class, 'slug', ignoreRecord: true),
 
                                 MarkdownEditor::make('content')
-                                    ->label('Nội dung bài viết')
-                                    ->required()
-                                    ->columnSpanFull(),
-                            ])
-                    ])->grow(true), // Cột này sẽ tự giãn rộng ra
+                                    ->label('Nội dung Markdown')
+                                    ->required(),
+                            ]),
+                    ])->grow(true),
 
-                    // CỘT PHẢI: CHIẾM PHẦN NHỎ (Cấu hình & Sidebar)
+                    // CỘT PHẢI: Thông tin phụ
                     Group::make([
-                        Section::make('Hình ảnh & Tóm tắt')
+                        Section::make('Ảnh & Mô tả')
                             ->schema([
-                                TextInput::make('thumbnail')
-                                    ->label('Link ảnh đại diện (GitHub/Imgur)')
+                                TextInput::make('cover_image') // Khớp với model của Vũ
+                                    ->label('Link ảnh bìa (GitHub/Imgur)')
+                                    ->placeholder('Dán link ảnh...')
                                     ->required(),
 
-                                TextInput::make('summary')
-                                    ->label('Tóm tắt bài viết')
-                                    ->placeholder('Mô tả ngắn cho trang danh sách...')
+                                Textarea::make('summary') // Dùng textarea cho summary sẽ hợp lý hơn
+                                    ->label('Tóm tắt ngắn')
+                                    ->rows(3)
                                     ->required(),
                             ]),
 
-                        Section::make('Trạng thái xuất bản')
+                        Section::make('Trạng thái')
                             ->schema([
                                 Toggle::make('is_published')
-                                    ->label('Công khai')
+                                    ->label('Công khai bài viết')
                                     ->default(true),
 
                                 DateTimePicker::make('published_at')
-                                    ->label('Ngày đăng bài')
+                                    ->label('Ngày xuất bản')
                                     ->default(now()),
+
+                                TextInput::make('views')
+                                    ->label('Lượt xem ban đầu')
+                                    ->numeric()
+                                    ->default(0),
                             ]),
-                    ])->grow(false)->extraAttributes(['class' => 'w-full lg:w-[350px]']), // Cố định độ rộng sidebar
+                    ])->grow(false),
                 ])->columnSpanFull(),
             ]);
     }
@@ -104,40 +109,34 @@ class PostResource extends Resource
     {
         return $table
             ->columns([
-                ImageColumn::make('thumbnail')
-                    ->label('Ảnh')
+                ImageColumn::make('cover_image')
+                    ->label('Ảnh bìa')
+                    ->disk('supabase') // BẮT BUỘC: Để nó biết lấy ảnh từ Supabase
                     ->circular(),
 
                 TextColumn::make('title')
                     ->label('Tiêu đề')
                     ->searchable()
                     ->sortable()
-                    ->wrap(),
-
-                TextColumn::make('slug')
-                    ->label('Đường dẫn')
-                    ->color('gray')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->wrap(), // Tiêu đề dài sẽ tự xuống dòng
 
                 IconColumn::make('is_published')
-                    ->label('Trạng thái')
-                    ->boolean()
+                    ->label('Đã đăng')
+                    ->boolean() // Hiện dấu tích xanh/đỏ
                     ->sortable(),
+
+                TextColumn::make('views')
+                    ->label('Lượt xem')
+                    ->numeric()
+                    ->sortable()
+                    ->badge(), // Hiện dạng tag cho đẹp
 
                 TextColumn::make('published_at')
-                    ->label('Ngày đăng')
-                    ->dateTime('d/m/Y H:i')
+                    ->label('Ngày xuất bản')
+                    ->dateTime('d/m/Y')
                     ->sortable(),
-
-                TextColumn::make('created_at')
-                    ->label('Ngày tạo')
-                    ->dateTime()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->defaultSort('published_at', 'desc') // Mới nhất hiện lên đầu
-            ->filters([
-                // Thêm bộ lọc trạng thái
-            ]);
+            ->defaultSort('published_at', 'desc');
     }
 
     public static function getRelations(): array

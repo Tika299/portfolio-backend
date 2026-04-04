@@ -12,6 +12,7 @@ use App\Filament\Resources\Posts\Tables\PostsTable;
 use App\Models\Post;
 use BackedEnum;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\MarkdownEditor;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -68,9 +69,11 @@ class PostResource extends Resource
                     Group::make([
                         Section::make('Ảnh & Mô tả')
                             ->schema([
-                                TextInput::make('cover_image') // Khớp với model của Vũ
-                                    ->label('Link ảnh bìa (GitHub/Imgur)')
-                                    ->placeholder('Dán link ảnh...')
+                                FileUpload::make('cover_image')
+                                    ->image()
+                                    ->disk('supabase') // Ép sử dụng disk supabase chúng ta vừa cấu hình
+                                    ->directory('posts') // Thư mục bên trong bucket
+                                    ->extraAttributes(['loading' => 'lazy'])
                                     ->required(),
 
                                 Textarea::make('summary') // Dùng textarea cho summary sẽ hợp lý hơn

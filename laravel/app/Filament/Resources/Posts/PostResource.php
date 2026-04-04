@@ -23,7 +23,6 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
@@ -40,7 +39,7 @@ class PostResource extends Resource
     {
         return $schema
             ->schema([
-                Split::make([
+                Group::make([
                     // CỘT TRÁI: Nội dung chính
                     Group::make([
                         Section::make('Nội dung bài viết')
@@ -96,7 +95,7 @@ class PostResource extends Resource
                                     ->default(0),
                             ]),
                     ])->grow(false),
-                ])->columnSpanFull(),
+                ])->columns(2),
             ]);
     }
 

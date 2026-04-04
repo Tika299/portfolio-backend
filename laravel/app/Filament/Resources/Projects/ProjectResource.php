@@ -7,6 +7,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\MarkdownEditor;
+use Filament\Forms\Components\FileUpload;
 // Tables
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ImageColumn;
@@ -57,9 +58,11 @@ class ProjectResource extends Resource
                     ->relationship('technologies', 'name')
                     ->preload(),
 
-                TextInput::make('thumbnail')
-                    ->label('Link ảnh (GitHub/Imgur)')
-                    ->placeholder('Dán link ảnh vào đây...')
+                FileUpload::make('thumbnail')
+                    ->image()
+                    ->disk('supabase') // Ép sử dụng disk supabase chúng ta vừa cấu hình
+                    ->directory('projects') // Thư mục bên trong bucket
+                    ->visibility('public')
                     ->required(),
 
                 MarkdownEditor::make('content')

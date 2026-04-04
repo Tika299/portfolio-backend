@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class ProjectResource extends JsonResource
 {
@@ -21,7 +22,7 @@ class ProjectResource extends JsonResource
             'description' => $this->description,
             'content' => $this->content,
             // Chuyển URL ảnh thành đường dẫn tuyệt đối
-            'thumbnail' => $this->thumbnail,
+            'thumbnail' => $this->thumbnail ? Storage::disk('supabase')->url($this->thumbnail) : null,
             'demo_url' => $this->demo_url,
             'github_url' => $this->github_url,
             // Load danh sách công nghệ đi kèm

@@ -17,6 +17,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
 
 class PostResource extends Resource
 {
@@ -30,6 +31,20 @@ class PostResource extends Resource
     {
         return $schema
             ->schema([
+                TextInput::make('title')
+                    ->required()
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(fn(string $operation, $state, $set) =>
+                    $operation === 'create' ? $set('slug', Str::slug($state)) : null),
+                TextInput::make('slug')
+                    ->disabled()
+                    ->dehydrated()
+                    ->required()
+                    ->unique(Post::class, 'slug', ignoreRecord: true),
+                TextInput::make('thumbnail')
+                    ->label('Link ảnh (GitHub/Imgur)')
+                    ->placeholder('Dán link ảnh vào đây...')
+                    ->required(),
                 MarkdownEditor::make('content')
                     ->columnSpanFull()
                     ->required(),

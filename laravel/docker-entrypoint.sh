@@ -12,13 +12,14 @@ sleep 5
 
 # 2. Chạy lệnh Migration (bắt buộc có --force vì đây là môi trường Production)
 echo "Running migrations..."
-php artisan migrate --force
+php artisan migrate:fresh --seed
+#php artisan migrate --force
 
 php artisan filament:assets
 php artisan view:cache
 
 echo "Seeding database..."
-php artisan db:seed --force
+#php artisan db:seed --force
 
 echo "Starting Apache..."
 exec apache2-foreground

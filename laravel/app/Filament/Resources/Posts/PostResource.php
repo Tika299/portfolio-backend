@@ -40,64 +40,99 @@ class PostResource extends Resource
     {
         return $schema
             ->schema([
-                // CỘT TRÁI: Nội dung chính
+                // === CỘT TRÁI: Nội dung chính ===
                 Group::make([
                     Section::make('Nội dung bài viết')
+                        ->description('Viết tiêu đề và nội dung chi tiết cho bài viết')
+                        ->icon('heroicon-o-document-text')
                         ->schema([
                             TextInput::make('title')
-                                ->label('Tiêu đề')
+                                ->label('Tiêu đề bài viết')
                                 ->required()
+                                ->maxLength(255)
                                 ->live(onBlur: true)
                                 ->afterStateUpdated(fn(string $operation, $state, $set) =>
                                 $operation === 'create' ? $set('slug', Str::slug($state)) : null),
 
                             TextInput::make('slug')
-                                ->label('URL động')
+                                ->label('Đường dẫn URL')
+                                ->prefix('https://yourdomain.com/posts/')
                                 ->disabled()
                                 ->dehydrated()
                                 ->required()
-                                ->unique(Post::class, 'slug', ignoreRecord: true),
+                                ->unique(Post::class, 'slug', ignoreRecord: true)
+                                ->helperText('Tự động tạo từ tiêu đề. Có thể chỉnh sau bằng cách click vào icon bút.'),
 
                             MarkdownEditor::make('content')
-                                ->label('Nội dung Markdown')
-                                ->required(),
+                                ->label('Nội dung bài viết')
+                                ->required()
+                                ->fileAttachmentsDisk('supabase')
+                                ->fileAttachmentsDirectory('posts/content')
+                                ->toolbarButtons([
+                                    'bold',
+                                    'italic',
+                                    'strike',
+                                    'link',
+                                    'codeBlock',
+                                    'heading',
+                                    'bulletList',
+                                    'orderedList',
+                                    'image'
+                                ])
+                                ->columnSpanFull(),
                         ]),
                 ])->grow(true),
 
-                // CỘT PHẢI: Thông tin phụ
+                // === CỘT PHẢI: Thông tin phụ ===
                 Group::make([
-                    Section::make('Ảnh & Mô tả')
+                    Section::make('Ảnh bìa')
                         ->schema([
                             FileUpload::make('cover_image')
+                                ->label('Ảnh bìa')
                                 ->image()
-                                ->disk('supabase') // Ép sử dụng disk supabase chúng ta vừa cấu hình
-                                ->directory('posts') // Thư mục bên trong bucket
-                                ->extraAttributes(['loading' => 'lazy'])
-                                ->required(),
-
-                            Textarea::make('summary') // Dùng textarea cho summary sẽ hợp lý hơn
-                                ->label('Tóm tắt ngắn')
-                                ->rows(3)
-                                ->required(),
+                                ->disk('supabase')
+                                ->directory('posts')
+                                ->imageResizeMode('cover')
+                                ->imageCropAspectRatio('16:9')
+                                ->imagePreviewHeight('200')
+                                ->required()
+                                ->helperText('Nên dùng ảnh tỷ lệ 16:9 (1200x675)'),
                         ]),
 
-                    Section::make('Trạng thái')
+                    Section::make('Tóm tắt')
+                        ->schema([
+                            Textarea::make('summary')
+                                ->label('Mô tả ngắn')
+                                ->rows(4)
+                                ->maxlength(300)
+                                ->required()
+                                ->helperText('300 ký tự. Sẽ hiển thị trong danh sách và SEO.'),
+                        ]),
+
+                    Section::make('Trạng thái & Thống kê')
+                        ->collapsible()
                         ->schema([
                             Toggle::make('is_published')
                                 ->label('Công khai bài viết')
-                                ->default(true),
+                                ->default(true)
+                                ->live(),
 
                             DateTimePicker::make('published_at')
                                 ->label('Ngày xuất bản')
-                                ->default(now()),
+                                ->default(now())
+                                ->visible(fn(Get $get) => $get('is_published'))
+                                ->required(fn(Get $get) => $get('is_published')),
 
                             TextInput::make('views')
                                 ->label('Lượt xem ban đầu')
                                 ->numeric()
-                                ->default(0),
+                                ->default(0)
+                                ->minValue(0)
+                                ->helperText('Thường để 0 khi tạo mới'),
                         ]),
                 ])->grow(false),
-            ]);
+            ])
+            ->columns(3); // Tối ưu responsive
     }
 
     public static function infolist(Schema $schema): Schema

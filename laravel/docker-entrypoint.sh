@@ -12,8 +12,7 @@ sleep 5
 
 # 2. Chạy lệnh Migration (bắt buộc có --force vì đây là môi trường Production)
 echo "Running migrations..."
-php artisan migrate:fresh --seed
-#php artisan migrate --force
+php artisan migrate --force
 
 php artisan filament:assets
 php artisan view:cache

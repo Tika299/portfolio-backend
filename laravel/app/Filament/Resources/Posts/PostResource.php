@@ -40,65 +40,63 @@ class PostResource extends Resource
     {
         return $schema
             ->schema([
+                // CỘT TRÁI: Nội dung chính
                 Group::make([
-                    // CỘT TRÁI: Nội dung chính
-                    Group::make([
-                        Section::make('Nội dung bài viết')
-                            ->schema([
-                                TextInput::make('title')
-                                    ->label('Tiêu đề')
-                                    ->required()
-                                    ->live(onBlur: true)
-                                    ->afterStateUpdated(fn(string $operation, $state, $set) =>
-                                    $operation === 'create' ? $set('slug', Str::slug($state)) : null),
+                    Section::make('Nội dung bài viết')
+                        ->schema([
+                            TextInput::make('title')
+                                ->label('Tiêu đề')
+                                ->required()
+                                ->live(onBlur: true)
+                                ->afterStateUpdated(fn(string $operation, $state, $set) =>
+                                $operation === 'create' ? $set('slug', Str::slug($state)) : null),
 
-                                TextInput::make('slug')
-                                    ->label('URL động')
-                                    ->disabled()
-                                    ->dehydrated()
-                                    ->required()
-                                    ->unique(Post::class, 'slug', ignoreRecord: true),
+                            TextInput::make('slug')
+                                ->label('URL động')
+                                ->disabled()
+                                ->dehydrated()
+                                ->required()
+                                ->unique(Post::class, 'slug', ignoreRecord: true),
 
-                                MarkdownEditor::make('content')
-                                    ->label('Nội dung Markdown')
-                                    ->required(),
-                            ]),
-                    ])->grow(true),
+                            MarkdownEditor::make('content')
+                                ->label('Nội dung Markdown')
+                                ->required(),
+                        ]),
+                ])->grow(true),
 
-                    // CỘT PHẢI: Thông tin phụ
-                    Group::make([
-                        Section::make('Ảnh & Mô tả')
-                            ->schema([
-                                FileUpload::make('cover_image')
-                                    ->image()
-                                    ->disk('supabase') // Ép sử dụng disk supabase chúng ta vừa cấu hình
-                                    ->directory('posts') // Thư mục bên trong bucket
-                                    ->extraAttributes(['loading' => 'lazy'])
-                                    ->required(),
+                // CỘT PHẢI: Thông tin phụ
+                Group::make([
+                    Section::make('Ảnh & Mô tả')
+                        ->schema([
+                            FileUpload::make('cover_image')
+                                ->image()
+                                ->disk('supabase') // Ép sử dụng disk supabase chúng ta vừa cấu hình
+                                ->directory('posts') // Thư mục bên trong bucket
+                                ->extraAttributes(['loading' => 'lazy'])
+                                ->required(),
 
-                                Textarea::make('summary') // Dùng textarea cho summary sẽ hợp lý hơn
-                                    ->label('Tóm tắt ngắn')
-                                    ->rows(3)
-                                    ->required(),
-                            ]),
+                            Textarea::make('summary') // Dùng textarea cho summary sẽ hợp lý hơn
+                                ->label('Tóm tắt ngắn')
+                                ->rows(3)
+                                ->required(),
+                        ]),
 
-                        Section::make('Trạng thái')
-                            ->schema([
-                                Toggle::make('is_published')
-                                    ->label('Công khai bài viết')
-                                    ->default(true),
+                    Section::make('Trạng thái')
+                        ->schema([
+                            Toggle::make('is_published')
+                                ->label('Công khai bài viết')
+                                ->default(true),
 
-                                DateTimePicker::make('published_at')
-                                    ->label('Ngày xuất bản')
-                                    ->default(now()),
+                            DateTimePicker::make('published_at')
+                                ->label('Ngày xuất bản')
+                                ->default(now()),
 
-                                TextInput::make('views')
-                                    ->label('Lượt xem ban đầu')
-                                    ->numeric()
-                                    ->default(0),
-                            ]),
-                    ])->grow(false),
-                ])->columns(2),
+                            TextInput::make('views')
+                                ->label('Lượt xem ban đầu')
+                                ->numeric()
+                                ->default(0),
+                        ]),
+                ])->grow(false),
             ]);
     }
 

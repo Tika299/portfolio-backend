@@ -1,40 +1,34 @@
 #!/bin/bash
 
-#!/bin/bash
-
-# Tạo file log nếu chưa có và cấp quyền ngay lập tức
+# 1. Cấp quyền log
 touch /var/www/html/storage/logs/laravel.log
 chown www-data:www-data /var/www/html/storage/logs/laravel.log
 chmod 664 /var/www/html/storage/logs/laravel.log
 
-# 1. Chờ một chút để chắc chắn Database đã sẵn sàng (khoảng 5 giây)
+# 2. Đợi Database sẵn sàng
 sleep 5
 
-# 2. Chạy lệnh Migration (bắt buộc có --force vì đây là môi trường Production)
+# 3. Xóa cache cũ để nhận cấu hình mới
+php artisan config:clear
+php artisan cache:clear
+php artisan view:clear
+php artisan route:clear
+
+# 4. Chạy Migration
+# Lưu ý: Trên Render Postgres, dùng migrate --force là an toàn nhất. 
+# Nếu muốn xóa sạch và làm lại, hãy dùng migrate:fresh --force
 echo "Running migrations..."
-php artisan migrate:fresh --seed
-#php artisan migrate --force
+php artisan migrate:fresh --seed --force
 
+# 5. Cài đặt assets và link storage
+echo "Setting up assets..."
 php artisan filament:assets
-php artisan view:cache
+php artisan storage:link --force
 
-echo "Seeding database..."
-#php artisan db:seed --force
+# 6. Cấp quyền cho thư mục storage (Rất quan trọng)
+chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-echo "Starting Apache..."
-exec apache2-foreground
-
-# 3. Tạo liên kết Storage (để hiện ảnh)
-echo "Linking storage..."
-php artisan storage:link
-
-chmod -R 775 storage bootstrap/cache
-
-# 4. Tối ưu hóa hệ thống
-echo "Caching config and routes..."
-php artisan config:cache
-php artisan route:cache
-
-# 5. Khởi động Apache (Lệnh mặc định của image php-apache)
+# 7. CHỈ DÙNG 1 LỆNH EXEC DUY NHẤT Ở CUỐI CÙNG
 echo "Starting Apache..."
 exec apache2-foreground

@@ -41,7 +41,7 @@ class PostResource extends Resource
     {
         return $schema
             ->schema([
-                // === CỘT TRÁI: Nội dung chính ===
+                // === CỘT CHÍNH (trái) - Chiếm 2/3 ===
                 Group::make([
                     Section::make('Nội dung bài viết')
                         ->description('Viết tiêu đề và nội dung chi tiết cho bài viết')
@@ -62,29 +62,18 @@ class PostResource extends Resource
                                 ->dehydrated()
                                 ->required()
                                 ->unique(Post::class, 'slug', ignoreRecord: true)
-                                ->helperText('Tự động tạo từ tiêu đề. Có thể chỉnh sau bằng cách click vào icon bút.'),
+                                ->helperText('Tự động tạo từ tiêu đề.'),
 
                             MarkdownEditor::make('content')
                                 ->label('Nội dung bài viết')
                                 ->required()
                                 ->fileAttachmentsDisk('supabase')
                                 ->fileAttachmentsDirectory('posts/content')
-                                ->toolbarButtons([
-                                    'bold',
-                                    'italic',
-                                    'strike',
-                                    'link',
-                                    'codeBlock',
-                                    'heading',
-                                    'bulletList',
-                                    'orderedList',
-                                    'image'
-                                ])
                                 ->columnSpanFull(),
                         ]),
-                ])->grow(true),
+                ])->columnSpan(2),   // ← Quan trọng: Chiếm 2 cột
 
-                // === CỘT PHẢI: Thông tin phụ ===
+                // === CỘT PHỤ (phải) - Chiếm 1/3 ===
                 Group::make([
                     Section::make('Ảnh bìa')
                         ->schema([
@@ -95,9 +84,9 @@ class PostResource extends Resource
                                 ->directory('posts')
                                 ->imageResizeMode('cover')
                                 ->imageCropAspectRatio('16:9')
-                                ->imagePreviewHeight('200')
+                                ->imagePreviewHeight('210')
                                 ->required()
-                                ->helperText('Nên dùng ảnh tỷ lệ 16:9 (1200x675)'),
+                                ->helperText('Khuyến nghị tỷ lệ 16:9'),
                         ]),
 
                     Section::make('Tóm tắt')
@@ -107,7 +96,7 @@ class PostResource extends Resource
                                 ->rows(4)
                                 ->maxlength(300)
                                 ->required()
-                                ->helperText('300 ký tự. Sẽ hiển thị trong danh sách và SEO.'),
+                                ->helperText('Tối đa 300 ký tự'),
                         ]),
 
                     Section::make('Trạng thái & Thống kê')
@@ -121,19 +110,20 @@ class PostResource extends Resource
                             DateTimePicker::make('published_at')
                                 ->label('Ngày xuất bản')
                                 ->default(now())
-                                ->visible(fn(Get $get) => $get('is_published'))
-                                ->required(fn(Get $get) => $get('is_published')),
+                                ->visible(fn(Get $get) => $get('is_published')),
 
                             TextInput::make('views')
                                 ->label('Lượt xem ban đầu')
                                 ->numeric()
                                 ->default(0)
-                                ->minValue(0)
-                                ->helperText('Thường để 0 khi tạo mới'),
+                                ->minValue(0),
                         ]),
-                ])->grow(false),
+                ])->columnSpan(1),   // ← Chiếm 1 cột
             ])
-            ->columns(3); // Tối ưu responsive
+            ->columns([
+                'sm' => 1,   // Mobile: xếp chồng
+                'lg' => 3,   // Màn hình lớn: chia 3 cột
+            ]);
     }
 
     public static function infolist(Schema $schema): Schema

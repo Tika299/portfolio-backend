@@ -85,6 +85,10 @@ class PostResource extends Resource
                                 ->imageResizeMode('cover')
                                 ->imageCropAspectRatio('16:9')
                                 ->imagePreviewHeight('210')
+                                ->imageEditor() // Hiện nút chỉnh sửa ảnh
+                                ->imageEditorAspectRatios([
+                                    '16:9',
+                                ])
                                 ->required()
                                 ->helperText('Khuyến nghị tỷ lệ 16:9'),
                         ]),
